@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="lo">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>ບັນທຶກລາຍຈ່າຍ</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+Lao:wght@400;600;700&family=Noto+Sans+Lao:wght@400;500;600;700&display=swap');
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root{
+  --bg-deep: #C2440A;
+  --bg-mid: #EE7113;
+  --orange: #E8600C;
+  --orange-soft: #FF8A3D;
+  --orange-deep: #B6430A;
+  --cream: #FFF8EE;
+  --cream-line: #F0DFC8;
+  --ink: #201405;
+  --ink-soft: #5C4630;
+  --green: #3F6B4F;
+  --green-soft: #5C8A6B;
+}
+
+html, body {
+  background: var(--bg-deep);
+  font-family: 'Noto Sans Lao', sans-serif;
+  color: var(--ink);
+  min-height: 100vh;
+}
+
+body {
+  background:
+    radial-gradient(circle at 12% 8%, rgba(255,227,194,0.25), transparent 45%),
+    linear-gradient(180deg, var(--bg-deep) 0%, var(--bg-mid) 100%);
+  padding: 28px 14px 60px;
+}
+
+.wrap { max-width: 640px; margin: 0 auto; }
+
+.masthead {
+  text-align: center;
+  margin-bottom: 22px;
+}
+.masthead .eyebrow {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: var(--cream);
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 6px;
+}
+.masthead .family-tag {
+  font-family: 'Noto Serif Lao', serif;
+  font-weight: 700;
+  font-size: 20px;
+  letter-spacing: 0.12em;
+  color: var(--cream);
+  background: var(--orange-deep);
+  border: 1.5px solid rgba(255,248,238,0.45);
+  display: inline-block;
+  padding: 3px 16px;
+  border-radius: 999px;
+  margin-bottom: 10px;
+}
+.masthead h1 {
+  font-family: 'Noto Serif Lao', serif;
+  font-weight: 700;
+  font-size: 36px;
+  color: var(--cream);
+  letter-spacing: 0.01em;
+}
+
+.ledger {
+  background: var(--cream);
+  border-radius: 14px;
+  box-shadow: 0 18px 40px rgba(0,0,0,0.35);
+  overflow: hidden;
+  position: relative;
+}
+.ledger::before{
+  content:"";
+  position:absolute; top:0; left:0; right:0; height:7px;
+  background: linear-gradient(90deg, var(--orange-deep), var(--orange), var(--orange-soft));
+}
+
+.summary {
+  display: flex;
+  border-bottom: 1px dashed var(--cream-line);
+  background: #FBE8D5;
+}
+.summary .cell {
+  flex: 1;
+  padding: 18px 16px;
+  text-align: center;
+}
+.summary .cell + .cell { border-left: 1px dashed var(--cream-line); }
+.summary .label {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--ink-soft);
+  margin-bottom: 5px;
+}
+.summary .value {
+  font-family: 'Noto Serif Lao', serif;
+  font-weight: 700;
+  font-size: 24px;
+  color: var(--ink);
+}
+.summary .value.total { color: var(--orange-deep); }
+
+.controls {
+  padding: 16px 18px 4px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.controls select, .controls input {
+  font-family: 'Noto Sans Lao', sans-serif;
+  font-weight: 600;
+  font-size: 15px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  border: 1.5px solid var(--cream-line);
+  background: #fff;
+  color: var(--ink);
+}
+.filter-input { display: none; }
+.filter-input.show { display: inline-block; }
+
+.filter-summary {
+  margin: 4px 18px 0;
+  padding: 12px 14px;
+  border-radius: 8px;
+  background: #FBE8D5;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink-soft);
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+}
+.filter-summary.show { display: flex; }
+.filter-summary .fs-value {
+  font-family: 'Noto Serif Lao', serif;
+  font-weight: 700;
+  font-size: 19px;
+  color: var(--orange-deep);
+}
+.add-btn {
+  font-family: 'Noto Sans Lao', sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  background: var(--orange);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 20px;
+  cursor: pointer;
+  transition: background .15s ease, transform .1s ease;
+}
+.add-btn:hover { background: var(--orange-deep); }
+.add-btn:active { transform: scale(0.97); }
+
+.form-panel {
+  padding: 4px 18px 18px;
+  display: none;
+}
+.form-panel.open { display: block; }
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 10px;
+}
+.form-grid .full { grid-column: 1 / -1; }
+.field label {
+  display: block;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--ink-soft);
+  margin-bottom: 5px;
+}
+.field input, .field select {
+  width: 100%;
+  font-family: 'Noto Sans Lao', sans-serif;
+  font-weight: 600;
+  font-size: 17px;
+  padding: 12px 12px;
+  border-radius: 8px;
+  border: 1.5px solid var(--cream-line);
+  background: #fff;
+  color: var(--ink);
+}
+.amount-words-field { margin-top: -2px; width: 100%; }
+.amount-words {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0;
+  font-family: 'Noto Serif Lao', serif;
+  font-weight: 700;
+  font-size: 15.5px;
+  color: var(--ink);
+  text-align: center;
+  background: #FBE2C8;
+  border: 1.5px solid #F3C896;
+  border-radius: 8px;
+  padding: 8px 10px;
+  min-height: 18px;
+  line-height: 1.5;
+  white-space: nowrap;
+  overflow-x: auto;
+}
+.field input:focus, .field select:focus {
+  outline: none;
+  border-color: var(--orange);
+  box-shadow: 0 0 0 3px rgba(232,96,12,0.25);
+}
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 9px;
+}
+.chip {
+  font-size: 13.5px;
+  font-weight: 600;
+  padding: 7px 13px;
+  border-radius: 999px;
+  border: 1.5px solid var(--cream-line);
+  background: #fff;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+.chip:hover { border-color: var(--orange); color: var(--ink); }
+.chip.active { background: var(--orange); border-color: var(--orange); color: #fff; font-weight: 700; }
+
+.save-row {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 14px;
+}
+.save-row button {
+  font-family: 'Noto Sans Lao', sans-serif;
+  font-weight: 700;
+  font-size: 15.5px;
+  padding: 11px 20px;
+  border-radius: 8px;
+  border: 1.5px solid var(--cream-line);
+  background: #fff;
+  cursor: pointer;
+}
+.save-row .save {
+  background: var(--green);
+  border-color: var(--green);
+  color: #fff;
+  font-weight: 700;
+}
+.save-row .save:hover { background: var(--green-soft); }
+
+.entries { padding: 6px 18px 20px; }
+.month-group { margin-top: 16px; }
+.month-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--ink-soft);
+  text-transform: uppercase;
+  padding: 6px 2px;
+  border-bottom: 1.5px solid var(--cream-line);
+  margin-bottom: 6px;
+}
+.entry {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 4px;
+  border-bottom: 1.5px solid var(--cream-line);
+}
+.entry .date-badge {
+  font-family: 'Noto Serif Lao', serif;
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--ink-soft);
+  width: 46px;
+  text-align: center;
+  flex-shrink: 0;
+}
+.entry .info { flex: 1; min-width: 0; }
+.entry .item {
+  font-size: 17.5px;
+  font-weight: 700;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.entry .note {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink-soft);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.entry .amount {
+  font-family: 'Noto Serif Lao', serif;
+  font-weight: 700;
+  font-size: 19px;
+  color: var(--orange-deep);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.entry .del {
+  background: none;
+  border: none;
+  color: var(--ink-soft);
+  cursor: pointer;
+  font-size: 24px;
+  line-height: 1;
+  padding: 4px 8px;
+  flex-shrink: 0;
+}
+.entry .del:hover { color: var(--orange-deep); }
+
+.empty {
+  text-align: center;
+  padding: 36px 16px;
+  color: var(--ink-soft);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+footer.note {
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255,248,238,0.55);
+  margin-top: 18px;
+}
+
+@media (max-width: 420px) {
+  .summary { flex-wrap: wrap; }
+  .summary .cell { flex: 1 1 50%; }
+  .summary .cell:nth-child(2) { border-left: none; }
+  .form-grid { grid-template-columns: 1fr; }
+  .masthead h1 { font-size: 30px; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="masthead">
+    <span class="eyebrow">ບັນຊີຄອບຄົວ</span>
+    <div class="family-tag">DDML</div>
+    <h1>ບັນທຶກລາຍຈ່າຍ</h1>
+  </div>
+
+  <div class="ledger">
+
+    <div class="summary">
+      <div class="cell">
+        <div class="label">ເດືອນນີ້</div>
+        <div class="value" id="sum-month">0 ກີບ</div>
+      </div>
+      <div class="cell">
+        <div class="label">ລາຍຈ່າຍທັງໝົດ</div>
+        <div class="value total" id="sum-total">0 ກີບ</div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="filter-group">
+        <select id="filter-mode">
+          <option value="all">ທັງໝົດ</option>
+          <option value="month">ຕາມເດືອນ</option>
+          <option value="day">ຕາມວັນ</option>
+        </select>
+        <select id="filter-month" class="filter-input"></select>
+        <input type="date" id="filter-day" class="filter-input">
+      </div>
+      <button class="add-btn" id="toggle-form">+ ເພີ່ມລາຍຈ່າຍ</button>
+    </div>
+
+    <div class="filter-summary" id="filter-summary"></div>
+
+    <div class="form-panel" id="form-panel">
+      <div class="form-grid">
+        <div class="field">
+          <label>ວັນທີ</label>
+          <input type="date" id="f-date">
+        </div>
+        <div class="field">
+          <label>ຈຳນວນເງິນ (ກີບ)</label>
+          <input type="text" id="f-amount" placeholder="0" inputmode="numeric">
+        </div>
+        <div class="field full amount-words-field">
+          <div class="amount-words" id="amount-words">0 ກີບ</div>
+        </div>
+        <div class="field full">
+          <label>ລາຍການ</label>
+          <input type="text" id="f-item" placeholder="ເຊັ່ນ: ຄ່າແຮງງານແມ່ບ້ານ" list="item-list">
+          <datalist id="item-list"></datalist>
+          <div class="chip-row" id="chip-row"></div>
+        </div>
+        <div class="field full">
+          <label>ໝາຍເຫດ (ບໍ່ບັງຄັບ)</label>
+          <input type="text" id="f-note" placeholder="ລາຍລະອຽດເພີ່ມເຕີມ">
+        </div>
+      </div>
+      <div class="save-row">
+        <button id="cancel-btn">ຍົກເລີກ</button>
+        <button class="save" id="save-btn">ບັນທຶກ</button>
+      </div>
+    </div>
+
+    <div class="entries" id="entries">
+      <div class="empty" id="loading-empty">ກຳລັງໂຫລດ...</div>
+    </div>
+
+  </div>
+
+  <footer class="note" id="sync-note">ຂໍ້ມູນຖືກບັນທຶກໄວ້ໃນບຣາວເຊີເຄື່ອງນີ້ (ບໍ່ໄດ້ຊິ້ງຂ້າມອຸປະກອນ)</footer>
+</div>
+
+<script>
+/* ==== ຕັ້ງຄ່າ GOOGLE SHEETS ຢູ່ບ່ອນນີ້ ====
+   1. ສ້າງ Google Sheet ໃໝ່
+   2. ເປີດ Extensions > Apps Script, ວາງໂຄ້ດ Code.gs (ໄດ້ຈາກຄຳແນະນຳ) ໃສ່
+   3. Deploy > New deployment > Web app > Execute as: Me, Who has access: Anyone
+   4. ຄັດລອກ URL ທີ່ໄດ້ມາວາງແທນຄ່າຂ້າງລຸ່ມນີ້
+   ຖ້າຍັງບໍ່ຕັ້ງຄ່າ (ຍັງເປັນ "") ແອັບຈະໃຊ້ localStorage
+   (ບັນທຶກສະເພາະໃນບຣາວເຊີເຄື່ອງນີ້) ໄປພາງກ່ອນອັດຕະໂນມັດ. */
+const SHEETS_URL = "https://script.google.com/macros/s/AKfycbxMKSrxXnE7q6Xldn0v-eZu7KYB_MDfFvjKYJWPTDF1Xjo5JeIrywXRZtXA_OxM2NQmNw/exec";
+
+const sheetsEnabled = !!SHEETS_URL;
+let syncTimer = null;
+
+function laoUnit(i){
+  switch(i){
+    case 1: return "ໜຶ່ງ";
+    case 2: return "ສອງ";
+    case 3: return "ສາມ";
+    case 4: return "ສີ່";
+    case 5: return "ຫ້າ";
+    case 6: return "ຫົກ";
+    case 7: return "ເຈັດ";
+    case 8: return "ແປດ";
+    case 9: return "ເກົ້າ";
+    default: return "";
+  }
+}
+
+function lao3digit(n, useSen){
+  const ROI = "ຮ້ອຍ", SEN = "ແສນ", SIB = "ສິບ", SAO = "ຊາວ", AET = "ເອັດ";
+  let s = "";
+  const h = Math.floor(n/100);
+  const t = Math.floor((n%100)/10);
+  const u = n%10;
+  if(h > 0) s += laoUnit(h) + (useSen ? SEN : ROI);
+  if(t === 1) s += SIB;
+  else if(t === 2) s += SAO;
+  else if(t >= 3 && t <= 9) s += laoUnit(t) + SIB;
+  if(u > 0){
+    s += (u === 1 && t > 0) ? AET : laoUnit(u);
+  }
+  return s;
+}
+
+function lao6digit(n){
+  const PAN = "ພັນ";
+  let s = "";
+  const hi = Math.floor(n/1000);
+  const lo = n%1000;
+  if(hi > 0) s += lao3digit(hi,false) + PAN;
+  if(lo > 0) s += lao3digit(lo,false);
+  return s;
+}
+
+function laoPanGroup(n){
+  const SEN = "ແສນ", PAN = "ພັນ", SIB = "ສິບ", SAO = "ຊາວ", AET = "ເອັດ";
+  let s = "";
+  const h = Math.floor(n/100);
+  const t = Math.floor((n%100)/10);
+  const u = n%10;
+  const hasLower = t > 0 || u > 0;
+  if(h > 0) s += laoUnit(h) + SEN;
+  if(hasLower){
+    if(t === 1) s += SIB;
+    else if(t === 2) s += SAO;
+    else if(t >= 3 && t <= 9) s += laoUnit(t) + SIB;
+    if(u > 0){
+      s += (u === 1 && t > 0) ? AET : laoUnit(u);
+    }
+    s += PAN;
+  }
+  return s;
+}
+
+function laoGrp(nInput){
+  const TUE = "ຕື້", LAN = "ລ້ານ";
+  let n = nInput;
+  const vTue = Math.floor(n/1000000000);
+  n -= vTue*1000000000;
+  const vLan = Math.floor(n/1000000);
+  n -= vLan*1000000;
+  const vPan = Math.floor(n/1000);
+  const vUni = n - vPan*1000;
+
+  let result = "";
+  if(vTue > 0){
+    if(result !== "") result += " ";
+    result += lao6digit(vTue) + TUE;
+  }
+  if(vLan > 0){
+    if(result !== "") result += " ";
+    result += lao3digit(vLan,false) + LAN;
+  }
+  if(vPan > 0){
+    if(result !== "") result += " ";
+    result += laoPanGroup(vPan);
+  }
+  if(vUni > 0){
+    if(result !== "") result += " ";
+    result += lao3digit(vUni,false);
+  }
+  return result + " ";
+}
+
+function piPo(amount){
+  const KIP = "ກີບ", SUN = "ສູນ";
+  const absN = Math.abs(amount);
+  const iP = Math.floor(absN);
+  if(amount === 0){
+    return "( " + SUN + " " + KIP + " )";
+  }
+  return "( " + laoGrp(iP) + KIP + " )";
+}
+
+const PRESET_ITEMS = [
+  "ຄ່າແຮງງານວົງ","ຄ່າແຮງງານແມ່ບ້ານ","ຄ່າແຮງງານຕາດຳ","ທິບ","ຄ່າໃຊ້ຈ່າຍໄປໄທ",
+  "ໃຫ້ແມ່ບ້ານ ອອກຕະຫລາດ","ຊື່ເຄື່ອງໃຫ້ລູກ","ຫວຍ ອອັດ","ຫວຍອາດ","ລົດແມ່",
+  "ລົດເລັກ","ຄ່າຮຽນລູກ","ຂອງກິນລູກ","ຄ່າໃຊ້ຈ່າຍຍ່ອຍທົ່ວໄປ"
+];
+const STORAGE_KEY = "expenses-data";
+const PENDING_KEY = "expenses-pending";
+let entries = [];
+let pendingQueue = [];
+let isSyncing = false;
+let editingId = null;
+
+const $ = (id) => document.getElementById(id);
+
+function todayStr(){
+  const d = new Date();
+  return d.toISOString().slice(0,10);
+}
+
+function fmtMoney(n){
+  return Math.round(n).toLocaleString('en-US') + " ກີບ";
+}
+
+function monthKeyOf(dateStr){
+  if(!dateStr) return "ບໍ່ມີວັນທີ";
+  return dateStr.slice(0,7);
+}
+
+const MONTH_NAMES = ["ມັງກອນ","ກຸມພາ","ມີນາ","ເມສາ","ພຶດສະພາ","ມິຖຸນາ","ກໍລະກົດ","ສິງຫາ","ກັນຍາ","ຕຸລາ","ພະຈິກ","ທັນວາ"];
+function monthLabel(key){
+  if(key === "ບໍ່ມີວັນທີ") return key;
+  const [y,m] = key.split("-");
+  return MONTH_NAMES[parseInt(m,10)-1] + " " + y;
+}
+
+function loadLocal(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    entries = raw ? JSON.parse(raw) : [];
+  }catch(e){
+    entries = [];
+  }
+}
+
+function persistLocal(){
+  try{
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+  }catch(e){
+    console.error("save failed", e);
+  }
+}
+
+function loadPending(){
+  try{
+    const raw = localStorage.getItem(PENDING_KEY);
+    pendingQueue = raw ? JSON.parse(raw) : [];
+  }catch(e){
+    pendingQueue = [];
+  }
+}
+
+function savePending(){
+  try{
+    localStorage.setItem(PENDING_KEY, JSON.stringify(pendingQueue));
+  }catch(e){
+    console.error("queue save failed", e);
+  }
+}
+
+function queueAction(action){
+  pendingQueue = pendingQueue.filter(a => a.id !== action.id);
+  pendingQueue.push(action);
+  savePending();
+  updateSyncStatus();
+}
+
+function mergeWithPending(remoteList){
+  const map = new Map(remoteList.map(e => [e.id, e]));
+  pendingQueue.forEach(action => {
+    if(action.action === "save"){
+      map.set(action.id, { id: action.id, date: action.date, amount: action.amount, item: action.item, note: action.note });
+    } else if(action.action === "delete"){
+      map.delete(action.id);
+    }
+  });
+  return Array.from(map.values());
+}
+
+async function fetchFromSheets(){
+  if(!sheetsEnabled || !navigator.onLine) return;
+  try{
+    const res = await fetch(SHEETS_URL, { method: "GET" });
+    const data = await res.json();
+    const remoteList = Array.isArray(data) ? data.map(e => ({ ...e, amount: Number(e.amount) || 0 })) : [];
+    entries = mergeWithPending(remoteList);
+    persistLocal();
+    render();
+  }catch(e){
+    console.error("Sheets fetch failed", e);
+  }
+}
+
+async function flushPending(){
+  if(!sheetsEnabled || !navigator.onLine || isSyncing || pendingQueue.length === 0) return;
+  isSyncing = true;
+  updateSyncStatus();
+  const queue = pendingQueue.slice();
+  for(const action of queue){
+    try{
+      await fetch(SHEETS_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(action)
+      });
+      pendingQueue = pendingQueue.filter(a => a !== action);
+      savePending();
+    }catch(e){
+      console.error("sync failed, will retry later", e);
+      break;
+    }
+  }
+  isSyncing = false;
+  updateSyncStatus();
+  if(pendingQueue.length === 0){
+    await fetchFromSheets();
+  }
+}
+
+function startPolling(){
+  stopPolling();
+  syncTimer = setInterval(() => {
+    if(navigator.onLine){
+      flushPending().then(fetchFromSheets);
+    }
+  }, 15000);
+}
+
+function stopPolling(){
+  if(syncTimer){ clearInterval(syncTimer); syncTimer = null; }
+}
+
+function updateSyncStatus(){
+  const el = document.getElementById("sync-note");
+  if(!el) return;
+  if(!sheetsEnabled){
+    el.textContent = "ຂໍ້ມູນຖືກບັນທຶກໄວ້ໃນບຣາວເຊີເຄື່ອງນີ້ (ບໍ່ໄດ້ຊິ້ງຂ້າມອຸປະກອນ) — ຍັງບໍ່ໄດ້ຕັ້ງຄ່າ Google Sheets";
+  } else if(!navigator.onLine){
+    el.textContent = pendingQueue.length > 0
+      ? "ອອບລາຍ — ບັນທຶກໄວ້ໃນເຄື່ອງແລ້ວ (" + pendingQueue.length + " ລາຍການລໍຊິ້ງ) ຈະອັບຂຶ້ນອັດຕະໂນມັດເມື່ອມີເນັດ"
+      : "ອອບລາຍ — ບັນທຶກໄວ້ໃນເຄື່ອງແລ້ວ";
+  } else if(isSyncing || pendingQueue.length > 0){
+    el.textContent = "ກຳລັງຊິ້ງຂໍ້ມູນຂຶ້ນ Google Sheets... (" + pendingQueue.length + " ລາຍການ)";
+  } else {
+    el.textContent = "ຂໍ້ມູນຊິ້ງກັນທຸກອຸປະກອນຜ່ານ Google Sheets";
+  }
+}
+
+function startSync(){
+  loadPending();
+  loadLocal();
+  render();
+  if(sheetsEnabled){
+    window.addEventListener("online", () => {
+      updateSyncStatus();
+      flushPending().then(fetchFromSheets);
+      startPolling();
+    });
+    window.addEventListener("offline", () => {
+      stopPolling();
+      updateSyncStatus();
+    });
+    if(navigator.onLine){
+      flushPending().then(fetchFromSheets);
+      startPolling();
+    }
+  }
+  updateSyncStatus();
+}
+
+async function upsertEntry(id, data){
+  const idx = entries.findIndex(e => e.id === id);
+  if(idx >= 0){
+    entries[idx] = { id, ...data };
+  } else {
+    entries.push({ id, ...data });
+  }
+  persistLocal();
+  render();
+  if(sheetsEnabled){
+    queueAction({ action: "save", id, ...data });
+    flushPending();
+  }
+}
+
+async function removeEntryById(id){
+  entries = entries.filter(e => e.id !== id);
+  persistLocal();
+  render();
+  if(sheetsEnabled){
+    queueAction({ action: "delete", id });
+    flushPending();
+  }
+}
+
+function buildChips(){
+  const row = $("chip-row");
+  row.innerHTML = "";
+  const dl = $("item-list");
+  dl.innerHTML = "";
+  PRESET_ITEMS.forEach(name => {
+    const chip = document.createElement("div");
+    chip.className = "chip";
+    chip.textContent = name;
+    chip.onclick = () => {
+      $("f-item").value = name;
+      document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
+      chip.classList.add("active");
+    };
+    row.appendChild(chip);
+    const opt = document.createElement("option");
+    opt.value = name;
+    dl.appendChild(opt);
+  });
+}
+
+let amountCoreDigits = "";
+
+function getAmountValue(){
+  const full = amountCoreDigits + "000";
+  return parseInt(full, 10);
+}
+
+function renderAmountField(){
+  const val = getAmountValue();
+  $("f-amount").value = val ? val.toLocaleString('en-US') : "";
+  $("amount-words").textContent = val ? piPo(val) : "0 ກີບ";
+}
+
+const amountInput = $("f-amount");
+amountInput.addEventListener("beforeinput", (e) => {
+  e.preventDefault();
+  if(e.inputType === "insertText" || e.inputType === "insertFromPaste" || e.inputType === "insertCompositionText"){
+    const digits = (e.data || "").replace(/[^\d]/g,"");
+    if(digits) amountCoreDigits += digits;
+  } else if(e.inputType === "deleteContentBackward" || e.inputType === "deleteContentForward" || e.inputType === "deleteByCut"){
+    amountCoreDigits = amountCoreDigits.slice(0,-1);
+  }
+  renderAmountField();
+});
+amountInput.addEventListener("input", () => {
+  renderAmountField();
+});
+
+function openForm(edit){
+  $("form-panel").classList.add("open");
+  $("toggle-form").style.display = "none";
+  document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
+  if(edit){
+    editingId = edit.id;
+    $("f-date").value = edit.date || "";
+    amountCoreDigits = edit.amount != null ? String(Math.round(edit.amount/1000)) : "";
+    $("f-item").value = edit.item || "";
+    $("f-note").value = edit.note || "";
+  } else {
+    editingId = null;
+    $("f-date").value = todayStr();
+    amountCoreDigits = "";
+    $("f-item").value = "";
+    $("f-note").value = "";
+  }
+  renderAmountField();
+}
+
+function closeForm(){
+  $("form-panel").classList.remove("open");
+  $("toggle-form").style.display = "inline-block";
+  editingId = null;
+}
+
+$("toggle-form").onclick = () => openForm(null);
+$("cancel-btn").onclick = closeForm;
+
+$("save-btn").onclick = async () => {
+  const date = $("f-date").value;
+  const amount = getAmountValue();
+  const item = $("f-item").value.trim();
+  const note = $("f-note").value.trim();
+
+  if(!item){ $("f-item").focus(); return; }
+  if(!amount || amount <= 0){ $("f-amount").focus(); return; }
+
+  const id = editingId || (Date.now().toString(36) + Math.random().toString(36).slice(2,7));
+  await upsertEntry(id, { date, amount, item, note });
+  closeForm();
+};
+
+async function deleteEntry(id){
+  await removeEntryById(id);
+}
+
+function editEntry(id){
+  const e = entries.find(e => e.id === id);
+  if(e) openForm(e);
+}
+
+function setFilterUI(){
+  const mode = $("filter-mode").value;
+  $("filter-month").classList.toggle("show", mode === "month");
+  $("filter-day").classList.toggle("show", mode === "day");
+  if(mode === "day" && !$("filter-day").value) $("filter-day").value = todayStr();
+}
+
+$("filter-mode").onchange = () => { setFilterUI(); render(); };
+$("filter-month").onchange = render;
+$("filter-day").onchange = render;
+
+function render(){
+  setFilterUI();
+
+  const monthKeys = Array.from(new Set(entries.map(e => monthKeyOf(e.date)))).sort().reverse();
+  const monthSel = $("filter-month");
+  const prevVal = monthSel.value || (monthKeys[0] || "");
+  monthSel.innerHTML = "";
+  monthKeys.forEach(k => {
+    const opt = document.createElement("option");
+    opt.value = k;
+    opt.textContent = monthLabel(k);
+    monthSel.appendChild(opt);
+  });
+  if(monthKeys.includes(prevVal)) monthSel.value = prevVal;
+
+  const mode = $("filter-mode").value;
+  let filtered = entries;
+  let summaryText = "";
+  if(mode === "month" && monthSel.value){
+    filtered = entries.filter(e => monthKeyOf(e.date) === monthSel.value);
+    summaryText = monthLabel(monthSel.value);
+  } else if(mode === "day" && $("filter-day").value){
+    const d = $("filter-day").value;
+    filtered = entries.filter(e => e.date === d);
+    summaryText = "ວັນທີ " + d;
+  }
+
+  const fs = $("filter-summary");
+  if(mode === "all"){
+    fs.classList.remove("show");
+  } else {
+    fs.classList.add("show");
+    const sum = filtered.reduce((s,e) => s + (e.amount||0), 0);
+    fs.innerHTML = `<span>${summaryText} &middot; ${filtered.length} ລາຍການ</span><span class="fs-value">${fmtMoney(sum)}</span>`;
+  }
+
+  const total = entries.reduce((s,e) => s + (e.amount||0), 0);
+  const thisMonth = todayStr().slice(0,7);
+  const monthTotal = entries.filter(e => monthKeyOf(e.date) === thisMonth).reduce((s,e) => s + (e.amount||0), 0);
+  $("sum-total").textContent = fmtMoney(total);
+  $("sum-month").textContent = fmtMoney(monthTotal);
+
+  const groups = {};
+  filtered.forEach(e => {
+    const k = monthKeyOf(e.date);
+    if(!groups[k]) groups[k] = [];
+    groups[k].push(e);
+  });
+  const sortedKeys = Object.keys(groups).sort().reverse();
+
+  const container = $("entries");
+  container.innerHTML = "";
+
+  if(filtered.length === 0){
+    container.innerHTML = '<div class="empty">ບໍ່ມີລາຍຈ່າຍໃນຊ່ວງທີ່ເລືອກ</div>';
+    return;
+  }
+
+  sortedKeys.forEach(k => {
+    const group = document.createElement("div");
+    group.className = "month-group";
+    const groupItems = groups[k].slice().sort((a,b) => (b.date||"").localeCompare(a.date||""));
+    const groupTotal = groupItems.reduce((s,e) => s + (e.amount||0), 0);
+    group.innerHTML = `<div class="month-title">${monthLabel(k)} &nbsp;&middot;&nbsp; ${fmtMoney(groupTotal)}</div>`;
+    groupItems.forEach(e => {
+      const day = e.date ? e.date.slice(8,10) : "--";
+      const row = document.createElement("div");
+      row.className = "entry";
+      row.innerHTML = `
+        <div class="date-badge">${day}</div>
+        <div class="info">
+          <div class="item"></div>
+          ${e.note ? '<div class="note"></div>' : ''}
+        </div>
+        <div class="amount">${fmtMoney(e.amount)}</div>
+        <button class="del" aria-label="ລຶບ" title="ລຶບ">&times;</button>
+      `;
+      row.querySelector(".item").textContent = e.item;
+      if(e.note) row.querySelector(".note").textContent = e.note;
+      row.querySelector(".info").onclick = () => editEntry(e.id);
+      row.querySelector(".del").onclick = (ev) => {
+        ev.stopPropagation();
+        if(confirm("ລຶບລາຍການນີ້ບໍ?")) deleteEntry(e.id);
+      };
+      group.appendChild(row);
+    });
+    container.appendChild(group);
+  });
+}
+
+buildChips();
+startSync();
+</script>
+</body>
+</html>
