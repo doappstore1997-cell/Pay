@@ -308,7 +308,7 @@ body {
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.entry .note {
+.entry .meta {
   font-size: 14px;
   font-weight: 500;
   color: var(--ink-soft);
@@ -925,6 +925,7 @@ function render(){
     return;
   }
 
+  let seq = 0;
   sortedKeys.forEach(k => {
     const group = document.createElement("div");
     group.className = "month-group";
@@ -932,20 +933,29 @@ function render(){
     const groupTotal = groupItems.reduce((s,e) => s + (e.amount||0), 0);
     group.innerHTML = `<div class="month-title">${monthLabel(k)} &nbsp;&middot;&nbsp; ${fmtMoney(groupTotal)}</div>`;
     groupItems.forEach(e => {
-      const day = e.date ? e.date.slice(8,10) : "--";
+      seq++;
+      const dateShort = e.date ? e.date.slice(8,10) + "/" + e.date.slice(5,7) : "";
       const row = document.createElement("div");
       row.className = "entry";
       row.innerHTML = `
-        <div class="date-badge">${day}</div>
+        <div class="date-badge">${seq}</div>
         <div class="info">
           <div class="item"></div>
-          ${e.note ? '<div class="note"></div>' : ''}
+          <div class="meta"></div>
         </div>
         <div class="amount">${fmtMoney(e.amount)}</div>
         <button class="del" aria-label="ລຶບ" title="ລຶບ">&times;</button>
       `;
       row.querySelector(".item").textContent = e.item;
-      if(e.note) row.querySelector(".note").textContent = e.note;
+      const metaParts = [];
+      if(dateShort) metaParts.push(dateShort);
+      if(e.note) metaParts.push(e.note);
+      const metaEl = row.querySelector(".meta");
+      if(metaParts.length){
+        metaEl.textContent = metaParts.join(" · ");
+      } else {
+        metaEl.remove();
+      }
       row.querySelector(".info").onclick = () => editEntry(e.id);
       row.querySelector(".del").onclick = (ev) => {
         ev.stopPropagation();
