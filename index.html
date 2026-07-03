@@ -586,6 +586,14 @@ function monthLabel(key){
   return MONTH_NAMES[parseInt(m,10)-1] + " " + y;
 }
 
+function formatDateLao(dateStr){
+  const parts = dateStr.split("-");
+  if(parts.length !== 3) return dateStr;
+  const y = parts[0], m = parseInt(parts[1],10), d = parseInt(parts[2],10);
+  const monthName = MONTH_NAMES[m-1] || "";
+  return "ວັນທີ " + d + " " + monthName + " " + y;
+}
+
 function loadLocal(){
   try{
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -934,7 +942,7 @@ function render(){
     group.innerHTML = `<div class="month-title">${monthLabel(k)} &nbsp;&middot;&nbsp; ${fmtMoney(groupTotal)}</div>`;
     groupItems.forEach(e => {
       seq++;
-      const dateShort = e.date ? e.date.slice(8,10) + "/" + e.date.slice(5,7) : "";
+      const dateShort = e.date ? formatDateLao(e.date) : "";
       const row = document.createElement("div");
       row.className = "entry";
       row.innerHTML = `
