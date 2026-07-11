@@ -566,8 +566,10 @@ let editingId = null;
 const $ = (id) => document.getElementById(id);
 
 function todayStr(){
-  const d = new Date();
-  return d.toISOString().slice(0,10);
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Vientiane',
+    year: 'numeric', month: '2-digit', day: '2-digit'
+  }).format(new Date());
 }
 
 function fmtMoney(n){
